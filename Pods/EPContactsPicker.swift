@@ -308,17 +308,6 @@ open class EPContactsPicker: UITableViewController, UISearchResultsUpdating, UIS
         return 60.0
     }
     
-    override open func tableView(_ tableView: UITableView, sectionForSectionIndexTitle title: String, at index: Int) -> Int {
-        if resultSearchController.isActive { return 0 }
-        tableView.scrollToRow(at: IndexPath(row: 0, section: index), at: UITableViewScrollPosition.top , animated: false)        
-        return sortedContactKeys.index(of: title)!
-    }
-    
-    override  open func sectionIndexTitles(for tableView: UITableView) -> [String]? {
-        if resultSearchController.isActive { return nil }
-        return sortedContactKeys
-    }
-
     override open func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
         if resultSearchController.isActive { return nil }
         return sortedContactKeys[section]
