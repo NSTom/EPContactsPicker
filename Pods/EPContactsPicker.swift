@@ -43,7 +43,7 @@ open class EPContactsPicker: UITableViewController, UISearchResultsUpdating, UIS
     var orderedContacts = [String: [CNContact]]() //Contacts ordered in dicitonary alphabetically
     var sortedContactKeys = [String]()
     
-    var selectedContacts = [EPContact]()
+    public var selectedContacts = [EPContact]()
     var filteredContacts = [CNContact]()
     
     var subtitleCellValue = SubtitleCellValue.phoneNumber
