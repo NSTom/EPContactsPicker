@@ -316,15 +316,19 @@ open class EPContactsPicker: UITableViewController, UISearchResultsUpdating, UIS
     // MARK: - Button Actions
     
     func onTouchCancelButton() {
-        dismiss(animated: true, completion: {
-            self.contactDelegate?.epContactPicker(self, didCancel: NSError(domain: "EPContactPickerErrorDomain", code: 2, userInfo: [ NSLocalizedDescriptionKey: "User Canceled Selection"]))
-        })
+        dismiss(animated: false) {
+            self.presentingViewController?.dismiss(animated: true) {
+                self.contactDelegate?.epContactPicker(self, didCancel: NSError(domain: "EPContactPickerErrorDomain", code: 2, userInfo: [ NSLocalizedDescriptionKey: "User Canceled Selection"]))
+            }
+        }
     }
     
     func onTouchDoneButton() {
-        dismiss(animated: true, completion: {
-            self.contactDelegate?.epContactPicker(self, didSelectMultipleContacts: self.selectedContacts)
-        })
+        dismiss(animated: false) {
+            self.presentingViewController?.dismiss(animated: true) {
+                self.contactDelegate?.epContactPicker(self, didSelectMultipleContacts: self.selectedContacts)
+            }
+        }
     }
     
     // MARK: - Search Actions
