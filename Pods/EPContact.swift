@@ -21,6 +21,7 @@ open class EPContact {
     open var contactId: String?
     open var phoneNumbers = [(phoneNumber: String, phoneLabel: String)]()
     open var emails = [(email: String, emailLabel: String )]()
+    open var anonymous = false
 	
     public init (contact: CNContact) {
         firstName = contact.givenName
@@ -61,6 +62,28 @@ open class EPContact {
 			
 			emails.append((email,emailLabel))
 		}
+    }
+    
+    public init(withAnonymousEmailAddress email: String) {
+        
+        emails.append((email: email, emailLabel: ""))
+        
+        firstName = ""
+        lastName = ""
+        company = ""
+        anonymous = true
+        
+    }
+    
+    public init(withAnonymousPhoneNumber phoneNumber: String) {
+        
+        phoneNumbers.append((phoneNumber: phoneNumber, phoneLabel: ""))
+        
+        firstName = ""
+        lastName = ""
+        company = ""
+        anonymous = true
+        
     }
 	
     open func displayName() -> String {

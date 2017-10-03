@@ -40,11 +40,15 @@ open class EPContactsPicker: UITableViewController, UISearchResultsUpdating, UIS
     open weak var contactDelegate: EPPickerDelegate?
     var contactsStore: CNContactStore?
     var resultSearchController = UISearchController()
-    var orderedContacts = [String: [CNContact]]() //Contacts ordered in dicitonary alphabetically
+    var orderedContacts = [String: [EPContact]]() //Contacts ordered in dictionary alphabetically
     var sortedContactKeys = [String]()
     
+    var anonymousContacts: [EPContact] {
+        return selectedContacts.filter { $0.anonymous }
+    }
+    
     public var selectedContacts = [EPContact]()
-    var filteredContacts = [CNContact]()
+    var filteredContacts = [EPContact]()
     
     var subtitleCellValue = SubtitleCellValue.phoneNumber
     var multiSelectEnabled: Bool = false //Default is single selection contact
@@ -68,6 +72,7 @@ open class EPContactsPicker: UITableViewController, UISearchResultsUpdating, UIS
             controller.dimsBackgroundDuringPresentation = false
             controller.hidesNavigationBarDuringPresentation = false
             controller.searchBar.sizeToFit()
+            controller.searchBar.placeholder = "Search or enter phone number"
             controller.searchBar.delegate = self
             self.tableView.tableHeaderView = controller.searchBar
             return controller
@@ -195,12 +200,12 @@ open class EPContactsPicker: UITableViewController, UISearchResultsUpdating, UIS
                         if let firstLetter = contact.givenName[0..<1] , firstLetter.containsAlphabets() {
                             key = firstLetter.uppercased()
                         }
-                        var contacts = [CNContact]()
+                        var contacts = [EPContact]()
                         
                         if let segregatedContact = self.orderedContacts[key] {
                             contacts = segregatedContact
                         }
-                        contacts.append(contact)
+                        contacts.append(EPContact(contact: contact))
                         self.orderedContacts[key] = contacts
 
                     })
@@ -238,12 +243,15 @@ open class EPContactsPicker: UITableViewController, UISearchResultsUpdating, UIS
     
     override open func numberOfSections(in tableView: UITableView) -> Int {
         if resultSearchController.isActive { return 1 }
-        return sortedContactKeys.count
+        return sortedContactKeys.count + 1
     }
     
     override open func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         if resultSearchController.isActive { return filteredContacts.count }
-        if let contactsForSection = orderedContacts[sortedContactKeys[section]] {
+        if section == 0 {
+            return anonymousContacts.count
+        }
+        if let contactsForSection = orderedContacts[sortedContactKeys[section - 1]] {
             return contactsForSection.count
         }
         return 0
@@ -257,18 +265,28 @@ open class EPContactsPicker: UITableViewController, UISearchResultsUpdating, UIS
         //Convert CNContact to EPContact
 		let contact: EPContact
         
+        let section = (indexPath as NSIndexPath).section - 1
+        
         if resultSearchController.isActive {
-            contact = EPContact(contact: filteredContacts[(indexPath as NSIndexPath).row])
+            
+            // From search results
+            contact = filteredContacts[indexPath.row]
+            
+        } else if section == -1 {
+            
+            // Anonymous
+            contact = anonymousContacts[indexPath.row]
+            
         } else {
-			guard let contactsForSection = orderedContacts[sortedContactKeys[(indexPath as NSIndexPath).section]] else {
+			guard let contactsForSection = orderedContacts[sortedContactKeys[section]] else {
 				assertionFailure()
 				return UITableViewCell()
 			}
 
-			contact = EPContact(contact: contactsForSection[(indexPath as NSIndexPath).row])
+			contact = contactsForSection[indexPath.row]
         }
 		
-        if multiSelectEnabled  && selectedContacts.contains(where: { $0.contactId == contact.contactId }) {
+        if multiSelectEnabled && selectedContacts.contains(where: { $0.contactId == contact.contactId }) {
             cell.accessoryType = UITableViewCellAccessoryType.checkmark
         }
 		
@@ -281,12 +299,13 @@ open class EPContactsPicker: UITableViewController, UISearchResultsUpdating, UIS
         let cell = tableView.cellForRow(at: indexPath) as! EPContactCell
         let selectedContact =  cell.contact!
         if multiSelectEnabled {
-            //Keeps track of enable=ing and disabling contacts
+            //Keeps track of enabling and disabling contacts
             if cell.accessoryType == UITableViewCellAccessoryType.checkmark {
                 cell.accessoryType = UITableViewCellAccessoryType.none
-                selectedContacts = selectedContacts.filter(){
+                selectedContacts = selectedContacts.filter() {
                     return selectedContact.contactId != $0.contactId
                 }
+                tableView.reloadData()
             }
             else {
                 cell.accessoryType = UITableViewCellAccessoryType.checkmark
@@ -310,7 +329,8 @@ open class EPContactsPicker: UITableViewController, UISearchResultsUpdating, UIS
     
     override open func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
         if resultSearchController.isActive { return nil }
-        return sortedContactKeys[section]
+        if section == 0 { return nil } // Anonymous section
+        return sortedContactKeys[section - 1]
     }
     
     // MARK: - Button Actions
@@ -359,8 +379,27 @@ open class EPContactsPicker: UITableViewController, UISearchResultsUpdating, UIS
             let store = CNContactStore()
             do {
                 filteredContacts = try store.unifiedContacts(matching: predicate,
-                    keysToFetch: allowedContactKeys())
-                //print("\(filteredContacts.count) count")
+                                                             keysToFetch: allowedContactKeys()).map { EPContact(contact: $0) }
+                
+                // Add a custom entry if the search string matches a phone number or email address
+                let emailRegex = try NSRegularExpression(pattern: "[^@]+@([^@]+)", options: [])
+                let phoneRegex = try NSRegularExpression(pattern: ".*?\\d.*?")
+                let searchTextRange = NSRange(location: 0, length: searchText.count)
+                if emailRegex.firstMatch(in: searchText, options: [], range: searchTextRange) != nil {
+                    
+                    // Add anonymous email entry
+                    let anon = EPContact(withAnonymousEmailAddress: searchText)
+                    anon.contactId = "Anonymous.\(searchText)"
+                    filteredContacts.insert(anon, at: 0)
+                    
+                } else if phoneRegex.firstMatch(in: searchText, options: [], range: searchTextRange) != nil {
+                    
+                    // Add anonymous phone entry
+                    let anon = EPContact(withAnonymousPhoneNumber: searchText)
+                    anon.contactId = "Anonymous.\(searchText)"
+                    filteredContacts.insert(anon, at: 0)
+                    
+                }
                 
                 self.tableView.reloadData()
                 

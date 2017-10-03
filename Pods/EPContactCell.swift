@@ -41,18 +41,38 @@ class EPContactCell: UITableViewCell {
     func updateContactsinUI(_ contact: EPContact, indexPath: IndexPath, subtitleType: SubtitleCellValue) {
         self.contact = contact
         //Update all UI in the cell here
-        self.contactTextLabel?.text = contact.displayName()
-        updateSubtitleBasedonType(subtitleType, contact: contact)
-        if contact.thumbnailProfileImage != nil {
-            self.contactImageView?.image = contact.thumbnailProfileImage
-            self.contactImageView.isHidden = false
-            self.contactInitialLabel.isHidden = true
+        if !contact.anonymous {
+            // Normal cell
+            self.contactTextLabel?.text = contact.displayName()
+            self.contactInitialLabel.transform = CGAffineTransform(translationX: 0, y: 0)
+            updateSubtitleBasedonType(subtitleType, contact: contact)
+            if contact.thumbnailProfileImage != nil {
+                self.contactImageView?.image = contact.thumbnailProfileImage
+                self.contactImageView.isHidden = false
+                self.contactInitialLabel.isHidden = true
+            } else {
+                self.contactInitialLabel.text = contact.contactInitials()
+                updateInitialsColorForIndexPath(indexPath)
+                self.contactImageView.isHidden = true
+                self.contactInitialLabel.isHidden = false
+            }
         } else {
-            self.contactInitialLabel.text = contact.contactInitials()
+            // Anonymous cell
+            if let phoneNumber = contact.phoneNumbers.first {
+                self.contactTextLabel?.text = phoneNumber.phoneNumber
+                contactDetailTextLabel?.text = "Custom phone number"
+            } else if let emailAddress = contact.emails.first {
+                self.contactTextLabel?.text = emailAddress.email
+                contactDetailTextLabel?.text = "Custom e-mail address"
+            }
+            // Initials label
+            self.contactInitialLabel.text = "+"
+            self.contactInitialLabel.transform = CGAffineTransform(translationX: 0, y: -1) // Center the + vertically
             updateInitialsColorForIndexPath(indexPath)
             self.contactImageView.isHidden = true
             self.contactInitialLabel.isHidden = false
         }
+        
     }
     
     func updateSubtitleBasedonType(_ subtitleType: SubtitleCellValue , contact: EPContact) {
@@ -69,7 +89,7 @@ class EPContactCell: UITableViewCell {
                 self.contactDetailTextLabel.text = "\(contact.phoneNumbers[0].phoneNumber) and \(contact.phoneNumbers.count-1) more"
             }
             else {
-                self.contactDetailTextLabel.text = EPGlobalConstants.Strings.phoneNumberNotAvaialable
+                self.contactDetailTextLabel.text = EPGlobalConstants.Strings.phoneNumberNotAvailable
             }
         case SubtitleCellValue.email:
             let emailCount = contact.emails.count
