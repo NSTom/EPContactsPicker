@@ -71,6 +71,7 @@ open class EPContact {
         firstName = ""
         lastName = ""
         company = ""
+        contactId = "Anonymous.\(email)"
         anonymous = true
         
     }
@@ -82,6 +83,7 @@ open class EPContact {
         firstName = ""
         lastName = ""
         company = ""
+        contactId = "Anonymous.\(phoneNumber)"
         anonymous = true
         
     }

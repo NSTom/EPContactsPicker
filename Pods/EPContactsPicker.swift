@@ -389,14 +389,12 @@ open class EPContactsPicker: UITableViewController, UISearchResultsUpdating, UIS
                     
                     // Add anonymous email entry
                     let anon = EPContact(withAnonymousEmailAddress: searchText)
-                    anon.contactId = "Anonymous.\(searchText)"
                     filteredContacts.insert(anon, at: 0)
                     
                 } else if phoneRegex.firstMatch(in: searchText, options: [], range: searchTextRange) != nil {
                     
                     // Add anonymous phone entry
                     let anon = EPContact(withAnonymousPhoneNumber: searchText)
-                    anon.contactId = "Anonymous.\(searchText)"
                     filteredContacts.insert(anon, at: 0)
                     
                 }
