@@ -38,10 +38,10 @@ open class EPContactsPicker: UITableViewController, UISearchResultsUpdating, UIS
     // MARK: - Properties
     
     open weak var contactDelegate: EPPickerDelegate?
-    var contactsStore: CNContactStore?
-    var resultSearchController = UISearchController()
+    @objc var contactsStore: CNContactStore?
+    @objc var resultSearchController = UISearchController()
     var orderedContacts = [String: [EPContact]]() //Contacts ordered in dictionary alphabetically
-    var sortedContactKeys = [String]()
+    @objc var sortedContactKeys = [String]()
     
     var anonymousContacts: [EPContact] {
         return selectedContacts.filter { $0.anonymous }
@@ -51,7 +51,7 @@ open class EPContactsPicker: UITableViewController, UISearchResultsUpdating, UIS
     var filteredContacts = [EPContact]()
     
     var subtitleCellValue = SubtitleCellValue.phoneNumber
-    var multiSelectEnabled: Bool = false //Default is single selection contact
+    @objc var multiSelectEnabled: Bool = false //Default is single selection contact
     
     // MARK: - Lifecycle Methods
     
@@ -65,7 +65,7 @@ open class EPContactsPicker: UITableViewController, UISearchResultsUpdating, UIS
         reloadContacts()
     }
     
-    func initializeSearchBar() {
+    @objc func initializeSearchBar() {
         self.resultSearchController = ( {
             let controller = UISearchController(searchResultsController: nil)
             controller.searchResultsUpdater = self
@@ -79,7 +79,7 @@ open class EPContactsPicker: UITableViewController, UISearchResultsUpdating, UIS
         })()
     }
     
-    func inititlizeBarButtons() {
+    @objc func inititlizeBarButtons() {
         let cancelButton = UIBarButtonItem(barButtonSystemItem: UIBarButtonSystemItem.cancel, target: self, action: #selector(onTouchCancelButton))
         self.navigationItem.leftBarButtonItem = cancelButton
         
@@ -138,7 +138,7 @@ open class EPContactsPicker: UITableViewController, UISearchResultsUpdating, UIS
     
     // MARK: - Contact Operations
   
-      open func reloadContacts() {
+      @objc open func reloadContacts() {
         getContacts( {(contacts, error) in
             if (error == nil) {
                 DispatchQueue.main.async(execute: {
@@ -148,7 +148,7 @@ open class EPContactsPicker: UITableViewController, UISearchResultsUpdating, UIS
         })
       }
   
-    func getContacts(_ completion:  @escaping ContactsHandler) {
+    @objc func getContacts(_ completion:  @escaping ContactsHandler) {
         if contactsStore == nil {
             //ContactStore is control for accessing the Contacts
             contactsStore = CNContactStore()
@@ -224,7 +224,7 @@ open class EPContactsPicker: UITableViewController, UISearchResultsUpdating, UIS
         }
     }
     
-    func allowedContactKeys() -> [CNKeyDescriptor]{
+    @objc func allowedContactKeys() -> [CNKeyDescriptor]{
         //We have to provide only the keys which we have to access. We should avoid unnecessary keys when fetching the contact. Reducing the keys means faster the access.
         return [CNContactNamePrefixKey as CNKeyDescriptor,
             CNContactGivenNameKey as CNKeyDescriptor,
@@ -335,7 +335,7 @@ open class EPContactsPicker: UITableViewController, UISearchResultsUpdating, UIS
     
     // MARK: - Button Actions
     
-    func onTouchCancelButton() {
+    @objc func onTouchCancelButton() {
         if presentedViewController != nil {
             dismiss(animated: false) {
                 self.presentingViewController?.dismiss(animated: true) {
@@ -349,7 +349,7 @@ open class EPContactsPicker: UITableViewController, UISearchResultsUpdating, UIS
         }
     }
     
-    func onTouchDoneButton() {
+    @objc func onTouchDoneButton() {
         if presentedViewController != nil {
             dismiss(animated: false) {
                 self.presentingViewController?.dismiss(animated: true) {

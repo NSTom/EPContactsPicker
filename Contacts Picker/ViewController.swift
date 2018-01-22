@@ -29,7 +29,7 @@ class ViewController: UIViewController, EPPickerDelegate {
   }
     
 //MARK: EPContactsPicker delegates
-    func epContactPicker(_: EPContactsPicker, didContactFetchFailed error : NSError)
+    @objc func epContactPicker(_: EPContactsPicker, didContactFetchFailed error : NSError)
     {
         print("Failed with error \(error.description)")
     }
@@ -39,7 +39,7 @@ class ViewController: UIViewController, EPPickerDelegate {
         print("Contact \(contact.displayName()) has been selected")
     }
     
-    func epContactPicker(_: EPContactsPicker, didCancel error : NSError)
+    @objc func epContactPicker(_: EPContactsPicker, didCancel error : NSError)
     {
         print("User canceled the selection");
     }

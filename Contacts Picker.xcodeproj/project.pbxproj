@@ -128,7 +128,7 @@
 					F4C1C93D1BDF8AB7001AA643 = {
 						CreatedOnToolsVersion = 7.0;
 						DevelopmentTeam = CCC5C8CH47;
-						LastSwiftMigration = 0800;
+						LastSwiftMigration = 0920;
 						ProvisioningStyle = Automatic;
 					};
 				};
@@ -303,7 +303,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "com.tomfreijsen.eppicker.Contacts-Picker";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
-				SWIFT_VERSION = 3.0;
+				SWIFT_VERSION = 4.0;
 			};
 			name = Debug;
 		};
@@ -319,7 +319,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "com.tomfreijsen.eppicker.Contacts-Picker";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
-				SWIFT_VERSION = 3.0;
+				SWIFT_VERSION = 4.0;
 			};
 			name = Release;
 		};
